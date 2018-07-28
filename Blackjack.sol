@@ -15,59 +15,146 @@ contract Blackjack {
         uint Id;
         bool UsesDealer; // other options...
         uint Cards[]; // (memory?) will have a stack of cards randomly generated. The size of the array will be 52 * NumDecks
+        uint turn;
     }
 
     // Game Id counter
-    uint GameId
+    uint GameId;
     Game Games[];
     // number of decks
     uint NumDecks = 1;
     
     // max number of players
     uint MaxPlayers = 5;
-    // players
     
+    uint counter;
     constructor ()
     {
         GameId = 0;
+        counter = 0;
     }
 
+    /*
     function CreateGame() public;
     function AddPlayer(uint gameId, string name) public;
     function StartGame(uint gameId) public; // options bUseDealer
     function HitOrStand(uint gameId, uint playerId) public; // after all player decide
     function Bid(uint gameId, uint playerId) public; // 
+    function ShowCards(uint gameId, uint playerId) public; // 
 
-    function GameLoop() private;
     function CreateDeck(uint gameId) private;
     function ShuffleDeck(uint gameId) private;
+    //function RemoveFromDeck(uint [], uint) private;
+    function GameLoop() private;
     function Deal() private;
+    // utils
+    function GenRnd(uint);
+    */
     
-    function CreateGame() public{
+    function CreateGame() public {
         GameId++;
         Games.push(new Game {
-            GameId = GameId            
+            GameId = GameId,
+            turn = 0            
         });
         CreateDeck(GameId); 
         ShuffleDeck(GameId);
     }
 
-    function CreateDeck(uint gameId)
+    function CreateDeck(uint gameId) private
     {
         Games[gameId].Cards = new uint[](52*NumDecks);
     }
 
-    function ShuffleDeck(uint gameId)
+    function ShuffleDeck(uint gameId) private
     {
         /*
         // create an array of NumDecks decks of cards (1-52)(1-52)...
         // Loop thru Cards
-        // Generate a random # 0-arraysize
+        // Generate a random # 0-arraysize-1
         // get the number in array from that position
         // add that to Cards
         // pop from array
         */ 
+        uint sortedCards[] = new uint[](52*Numdecks);
+        for (uint d=0; 1 < NumDecks; d++)
+        {
+            for (uint c=1; c <= 52; c++)
+            {
+                sortedCards[d*52+c-1]=c;
+            }
+        }
+        for (uint i=0; i < NumDesks*52; i++)
+        {
+            c = GenRnd(sortedCards.length
+            Games[gameId].Cards[i] = GetCardFromSorted(sortedCards, c);
+            RemoveFromDeck(sortedCards, c);
+        }
     }
+
+    function GetCardFromSorted(uint [] sortedCards, uint c) private // rather slow, need to refactor
+    {
+        uint cc = c;
+        uint x = sortedCards[cc];
+        while (x == 0)
+        {
+            cc++;
+            if (cc == c) {
+                // something very bad has happened!
+            }
+            if (cc = sortedCards.length) {
+                cc == 0;
+            }
+            x = sortedCards[cc];
+        }
+        sortedCards[cc] = 0;
+        return x;
+    }
+
+    /*function RemoveFromDeck(uint [], uint)
+    {
+
+    }
+    */
+
+    function GenRnd(uint limit) private
+    {
+        uint rnd = uint(keccak256(abi.encodePacked(now, msg.sender, counter)));
+        counter++;
+        rnd = rnd % limit;
+        return rnd;
+    }
+
+    function AddPlayer(uint gameId, string name) public
+    {
+        if (Games[gameId].Players.length == MaxPlayers)
+        {
+            return 0;
+        }
+        Games[gameId].Players.push(new Player {
+            Name = name;
+            Amount = 0;
+        })
+    }
+
+    function Bid(uint gameId, uint playerId) public payable {
+        // Don't gamble with a ton of money!
+        require(msg.value > 0 && msg.value <= 1 ether, "You must gamble with some ether, but no more than one.");
+        Games[gameId].Players[playerId].Amount += msg.value;
+    }
+
+    function StartGame(uint gameId) public
+    {
+        require(Games[gameId].Players.length != 0,"No one has asked to join this game!");
+        Deal();
+        GameLoop();
+    }
+
+    function Deal() private
+    {}
+    function GameLoop() private {}
+    function ShowCards() {}
+
 }
 
 
