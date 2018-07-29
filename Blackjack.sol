@@ -15,8 +15,12 @@ contract Blackjack {
         uint Id;
         bool UsesDealer; // other options...
         uint Cards[]; // (memory?) will have a stack of cards randomly generated. The size of the array will be 52 * NumDecks
+<<<<<<< HEAD
         uint DeckPos;
         uint Turn;
+=======
+        uint turn;
+>>>>>>> 78fc384c5fc76ef47ca50fb9586fad4869d47661
     }
 
     // Game Id counter
@@ -51,13 +55,21 @@ contract Blackjack {
     // utils
     function GenRnd(uint);
     */
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 78fc384c5fc76ef47ca50fb9586fad4869d47661
     function CreateGame() public {
         GameId++;
         Games.push(new Game {
             GameId = GameId,
+<<<<<<< HEAD
             Turn = 0,
             DeckPos = 0,            
+=======
+            turn = 0            
+>>>>>>> 78fc384c5fc76ef47ca50fb9586fad4869d47661
         });
         CreateDeck(GameId); 
         ShuffleDeck(GameId);
@@ -137,6 +149,7 @@ contract Blackjack {
             Name = name;
             Amount = 0;
         })
+<<<<<<< HEAD
         return Games[gameId].Players.length;
     }
 
@@ -192,6 +205,27 @@ contract Blackjack {
 
     function GameLoop() private {}
     
+=======
+    }
+
+    function Bid(uint gameId, uint playerId) public payable {
+        // Don't gamble with a ton of money!
+        require(msg.value > 0 && msg.value <= 1 ether, "You must gamble with some ether, but no more than one.");
+        Games[gameId].Players[playerId].Amount += msg.value;
+    }
+
+    function StartGame(uint gameId) public
+    {
+        require(Games[gameId].Players.length != 0,"No one has asked to join this game!");
+        Deal();
+        GameLoop();
+    }
+
+    function Deal() private
+    {}
+    function GameLoop() private {}
+    function ShowCards() {}
+>>>>>>> 78fc384c5fc76ef47ca50fb9586fad4869d47661
 
 }
 
