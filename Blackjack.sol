@@ -15,6 +15,7 @@ contract Blackjack {
         uint Id;
         bool UsesDealer; // other options...
         uint Cards[]; // (memory?) will have a stack of cards randomly generated. The size of the array will be 52 * NumDecks
+
         uint DeckPos;
         uint Turn;
     }
@@ -51,6 +52,7 @@ contract Blackjack {
     // utils
     function GenRnd(uint);
     */
+
     function CreateGame() public {
         GameId++;
         Games.push(new Game {
@@ -91,6 +93,7 @@ contract Blackjack {
             Games[gameId].Cards[i] = GetCardFromSorted(sortedCards, c);
             RemoveFromDeck(sortedCards, c);
         }
+
     }
 
     function GetCardFromSorted(uint [] sortedCards, uint c) private // rather slow, need to refactor
@@ -191,6 +194,7 @@ contract Blackjack {
 
     function GameLoop() private {}
     
+
 
 }
 
