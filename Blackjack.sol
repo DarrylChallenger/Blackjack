@@ -15,7 +15,9 @@ contract Blackjack {
         uint Id;
         bool UsesDealer; // other options...
         uint Cards[]; // (memory?) will have a stack of cards randomly generated. The size of the array will be 52 * NumDecks
-        uint turn;
+
+        uint DeckPos;
+        uint Turn;
     }
 
     // Game Id counter
@@ -50,12 +52,13 @@ contract Blackjack {
     // utils
     function GenRnd(uint);
     */
-    
+
     function CreateGame() public {
         GameId++;
         Games.push(new Game {
             GameId = GameId,
-            turn = 0            
+            Turn = 0,
+            DeckPos = 0,            
         });
         CreateDeck(GameId); 
         ShuffleDeck(GameId);
@@ -90,6 +93,7 @@ contract Blackjack {
             Games[gameId].Cards[i] = GetCardFromSorted(sortedCards, c);
             RemoveFromDeck(sortedCards, c);
         }
+
     }
 
     function GetCardFromSorted(uint [] sortedCards, uint c) private // rather slow, need to refactor
@@ -135,6 +139,7 @@ contract Blackjack {
             Name = name;
             Amount = 0;
         })
+        return Games[gameId].Players.length;
     }
 
     function Bid(uint gameId, uint playerId) public payable {
@@ -145,15 +150,51 @@ contract Blackjack {
 
     function StartGame(uint gameId) public
     {
-        require(Games[gameId].Players.length != 0,"No one has asked to join this game!");
-        Deal();
+        require(Games[gameId].Players.length < 1 ,"No one has asked to join this game!");
+        // Add Dealer
+        Games[gameId].Players.push(new Player{
+            Name = "Dealer"
+        })
+        Deal(gameId);
         GameLoop();
     }
 
-    function Deal() private
-    {}
+    function Deal(uint GameId) private
+    {
+        for (uint c = 0; c < 2; c++) // two cards
+        {
+            for (uint i = 0; i < Games[gameId].Players.length; i++) // each player
+            {
+                uint card = Draw(gameId);
+                Games[gameId].Players[i].Cards.push(card);
+            }
+        }
+    }
+
+    function ShowCards(gameId) public
+    {
+        // Build an arry where the firt index is the number of players. Followed by: player 0 card count, cards, player 1 card count, cards, ...
+        uint [] out;
+        out.push(Games[GameId].Player.length);
+        for (uint p = 0; p <= Games[GameId].Player.length; p++)
+        {
+            out.push(Games[GameId].Player[p].Cards.length);
+            for (uint c = 0; c < Games[GameId].Player[p].Cards.length; c++)
+            {
+                out.push(Games[GameId].Player[p].Cards{c]});
+            }
+        }
+        return out;
+    }
+
+    function Draw(uint gameId)
+    {
+        return Games[gameId].Cards[DeckPos++];
+    }
+
     function GameLoop() private {}
-    function ShowCards() {}
+    
+
 
 }
 
