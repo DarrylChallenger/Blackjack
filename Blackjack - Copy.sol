@@ -4,24 +4,24 @@ contract Blackjack {
     // player: name, cards, amount
     struct Player {
         string Name;
-        uint CardsInHand[32]; // max # cards is actually 21. This array will have a val between 1-52 for each card, each suit (C, H, D, S)
-        uint NumCardsInHand = 0;
-        uint Amount = 0;
+        uint[32] CardsInHand; // max # cards is actually 21. This array will have a val between 1-52 for each card, each suit (C, H, D, S)
+        uint NumCardsInHand;
+        uint Amount;
     }
 
     // Game
     struct Game {
-        Player Players[];
+        Player[] Players;
         uint Id;
         bool UsesDealer; // other options...
-        uint Cards[]; // (memory?) will have a stack of cards randomly generated. The size of the array will be 52 * NumDecks
+        uint[] Cards; // (memory?) will have a stack of cards randomly generated. The size of the array will be 52 * NumDecks
         uint DeckPos;
         uint Turn;
     }
 
     // Game Id counter
     uint GameId;
-    Game Games[];
+    Game[] Games;
     // number of decks
     uint NumDecks = 1;
     
@@ -51,13 +51,10 @@ contract Blackjack {
     // utils
     function GenRnd(uint);
     */
+    
     function CreateGame() public {
         GameId++;
-        Games.push(new Game {
-            GameId = GameId,
-            Turn = 0,
-            DeckPos = 0,            
-        });
+        Games.push(Game({Id: GameId, Turn: 0}));
         CreateDeck(GameId); 
         ShuffleDeck(GameId);
     }
@@ -77,7 +74,7 @@ contract Blackjack {
         // add that to Cards
         // pop from array
         */ 
-        uint sortedCards[] = new uint[](52*Numdecks);
+        uint[] memory sortedCards  = new uint[](52*NumDecks);
         for (uint d=0; 1 < NumDecks; d++)
         {
             for (uint c=1; c <= 52; c++)
@@ -85,15 +82,15 @@ contract Blackjack {
                 sortedCards[d*52+c-1]=c;
             }
         }
-        for (uint i=0; i < NumDesks*52; i++)
+        for (uint i=0; i < NumDecks*52; i++)
         {
-            c = GenRnd(sortedCards.length
+            c = GenRnd(sortedCards.length);
             Games[gameId].Cards[i] = GetCardFromSorted(sortedCards, c);
-            RemoveFromDeck(sortedCards, c);
+            //RemoveFromDeck(sortedCards, c);
         }
     }
 
-    function GetCardFromSorted(uint [] sortedCards, uint c) private // rather slow, need to refactor
+    function GetCardFromSorted(uint[] sortedCards, uint c) private returns(uint) // rather slow, need to refactor
     {
         uint cc = c;
         uint x = sortedCards[cc];
@@ -103,7 +100,7 @@ contract Blackjack {
             if (cc == c) {
                 // something very bad has happened!
             }
-            if (cc = sortedCards.length) {
+            if (cc == sortedCards.length) {
                 cc == 0;
             }
             x = sortedCards[cc];
@@ -118,7 +115,7 @@ contract Blackjack {
     }
     */
 
-    function GenRnd(uint limit) private
+    function GenRnd(uint limit) private returns(uint)
     {
         uint rnd = uint(keccak256(abi.encodePacked(now, msg.sender, counter)));
         counter++;
@@ -126,16 +123,16 @@ contract Blackjack {
         return rnd;
     }
 
-    function AddPlayer(uint gameId, string name) public
+    function AddPlayer(uint gameId, string name) public returns(uint)
     {
         if (Games[gameId].Players.length == MaxPlayers)
         {
             return 0;
         }
-        Games[gameId].Players.push(new Player {
-            Name = name;
-            Amount = 0;
-        })
+        Games[gameId].Players.push(new Player({
+            Name: name,
+            Amount: 0
+        }));
         return Games[gameId].Players.length;
     }
 
@@ -149,14 +146,14 @@ contract Blackjack {
     {
         require(Games[gameId].Players.length < 1 ,"No one has asked to join this game!");
         // Add Dealer
-        Games[gameId].Players.push(new Player{
-            Name = "Dealer"
-        })
+        Games[gameId].Players.push(new Player ({
+            Name : "Dealer"
+        }));
         Deal(gameId);
         GameLoop();
     }
 
-    function Deal(uint GameId) private
+    function Deal(uint gameId) private
     {
         for (uint c = 0; c < 2; c++) // two cards
         {
@@ -168,25 +165,25 @@ contract Blackjack {
         }
     }
 
-    function ShowCards(gameId) public
+    function ShowCards(uint gameId) public returns(uint[])
     {
         // Build an arry where the firt index is the number of players. Followed by: player 0 card count, cards, player 1 card count, cards, ...
-        uint [] out;
+        uint[] memory out;
         out.push(Games[GameId].Player.length);
         for (uint p = 0; p <= Games[GameId].Player.length; p++)
         {
             out.push(Games[GameId].Player[p].Cards.length);
             for (uint c = 0; c < Games[GameId].Player[p].Cards.length; c++)
             {
-                out.push(Games[GameId].Player[p].Cards{c]});
+                out.push(Games[GameId].Player[p].Cards[c]);
             }
         }
         return out;
     }
 
-    function Draw(uint gameId)
+    function Draw(uint gameId) private returns(uint) 
     {
-        return Games[gameId].Cards[DeckPos++];
+        return Games[gameId].Cards[Games[gameId].DeckPos++];
     }
 
     function GameLoop() private {}
