@@ -96,6 +96,7 @@ contract Blackjack {
             Games[gameId].Cards[i] = GetCardFromSorted(sortedCards, c);
             RemoveFromDeck(sortedCards, c);
         }
+
     }
 
     function GetCardFromSorted(uint [] sortedCards, uint c) private // rather slow, need to refactor
@@ -196,6 +197,7 @@ contract Blackjack {
 
     function GameLoop() private {}
     
+
 
 }
 
